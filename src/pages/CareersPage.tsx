@@ -78,7 +78,7 @@ export default function CareersPage() {
         },
         body: JSON.stringify({
           sender: { name: formData.name, email: formData.email },
-          to: [{ email: "curriculos@etelestudos.com.br" }],
+          to: [{ email: "programa@etelestudos.com.br" }],
           subject: `Novo Currículo Recebido: ${formData.name} - ${formData.role}`,
           htmlContent: `
             <html>
@@ -173,8 +173,8 @@ export default function CareersPage() {
                 </div>
                 <div>
                   <div className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">E-mail para currículos</div>
-                  <a href="mailto:curriculos@etelestudos.com.br" className="text-xl font-headline font-bold text-white hover:text-primary-container transition-colors">
-                    curriculos@etelestudos.com.br
+                  <a href="mailto:programa@etelestudos.com.br" className="text-xl font-headline font-bold text-white hover:text-primary-container transition-colors">
+                    programa@etelestudos.com.br
                   </a>
                 </div>
               </div>

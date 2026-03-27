@@ -1,4 +1,60 @@
+import React, { useState } from 'react';
+
 export default function ContactPage() {
+  const [formData, setFormData] = useState({ name: '', email: '', message: '', botField: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (formData.botField) return; // honeypot
+
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+
+    try {
+      const apiKey = import.meta.env.VITE_BREVO_API_KEY;
+      if (!apiKey) throw new Error("Chave de API não configurada");
+
+      const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'api-key': apiKey,
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          sender: { name: formData.name, email: formData.email },
+          to: [{ email: "programa@etelestudos.com.br" }],
+          subject: `Novo Contato do Site: ${formData.name}`,
+          htmlContent: `
+            <html>
+              <body>
+                <h2 style="color: #FAA025;">Novo Contato - ETEL Locações</h2>
+                <p>Você recebeu uma nova mensagem através da página de contato do site.</p>
+                <hr />
+                <p><strong>Nome Completo:</strong> ${formData.name}</p>
+                <p><strong>E-mail:</strong> ${formData.email}</p>
+                <p><strong>Mensagem:</strong></p>
+                <p>${formData.message}</p>
+              </body>
+            </html>
+          `
+        })
+      });
+
+      if (!response.ok) throw new Error('Falha ao enviar e-mail');
+
+      setSubmitStatus('success');
+      setFormData({ name: '', email: '', message: '', botField: '' });
+    } catch (error) {
+      console.error(error);
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <main className="pt-24">
       {/* Hero Section: History & Mission */}
@@ -75,21 +131,57 @@ export default function ContactPage() {
           <div>
             <h2 className="text-4xl font-headline font-extrabold text-white mb-4">Envie uma Mensagem</h2>
             <p className="text-on-surface-variant mb-12 max-w-md">Preencha o formulário abaixo e nossa equipe retornará em até 24 horas úteis com uma solução personalizada.</p>
-            <form className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">Nome Completo</label>
-                <input className="w-full bg-surface-container-highest border-none focus:ring-0 border-b-2 border-transparent focus:border-primary-container text-on-surface placeholder-on-surface-variant/30 py-4 px-4 transition-all duration-300" placeholder="Ex: João Silva" type="text" />
+                <input 
+                  required
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  className="w-full bg-surface-container-highest border-none focus:ring-0 border-b-2 border-transparent focus:border-primary-container text-on-surface placeholder-on-surface-variant/30 py-4 px-4 transition-all duration-300" 
+                  placeholder="Ex: João Silva" 
+                  type="text" 
+                />
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">E-mail Corporativo</label>
-                <input className="w-full bg-surface-container-highest border-none focus:ring-0 border-b-2 border-transparent focus:border-primary-container text-on-surface placeholder-on-surface-variant/30 py-4 px-4 transition-all duration-300" placeholder="nome@empresa.com.br" type="email" />
+                <input 
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  className="w-full bg-surface-container-highest border-none focus:ring-0 border-b-2 border-transparent focus:border-primary-container text-on-surface placeholder-on-surface-variant/30 py-4 px-4 transition-all duration-300" 
+                  placeholder="nome@empresa.com.br" 
+                  type="email" 
+                />
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">Mensagem</label>
-                <textarea className="w-full bg-surface-container-highest border-none focus:ring-0 border-b-2 border-transparent focus:border-primary-container text-on-surface placeholder-on-surface-variant/30 py-4 px-4 transition-all duration-300" placeholder="Como podemos ajudar sua operação?" rows={4}></textarea>
+                <textarea 
+                  required
+                  value={formData.message}
+                  onChange={(e) => setFormData({...formData, message: e.target.value})}
+                  className="w-full bg-surface-container-highest border-none focus:ring-0 border-b-2 border-transparent focus:border-primary-container text-on-surface placeholder-on-surface-variant/30 py-4 px-4 transition-all duration-300" 
+                  placeholder="Como podemos ajudar sua operação?" 
+                  rows={4}
+                ></textarea>
               </div>
-              <button className="w-full md:w-auto px-12 py-4 bg-primary-container text-on-primary font-headline font-black uppercase tracking-tighter hover:bg-primary-fixed-dim transition-all duration-300 shadow-lg shadow-primary-container/10" type="button">
-                Enviar Solicitação
+
+              {/* Honeypot */}
+              <input type="text" className="hidden" value={formData.botField} onChange={e => setFormData({...formData, botField: e.target.value})} tabIndex={-1} autoComplete="off" />
+
+              {submitStatus === 'success' && (
+                <div className="bg-green-500/10 border border-green-500/30 text-green-400 p-4 rounded text-sm text-center">
+                  Sua mensagem foi enviada com sucesso! Em breve entraremos em contato.
+                </div>
+              )}
+              {submitStatus === 'error' && (
+                <div className="bg-red-500/10 border border-red-500/30 text-red-400 p-4 rounded text-sm text-center">
+                  Ops! Ocorreu um erro ao enviar sua mensagem. Tente novamente mais tarde.
+                </div>
+              )}
+
+              <button disabled={isSubmitting} className="w-full md:w-auto px-12 py-4 bg-primary-container text-on-primary font-headline font-black uppercase tracking-tighter hover:bg-primary-fixed-dim disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-lg shadow-primary-container/10" type="submit">
+                {isSubmitting ? 'Enviando...' : 'Enviar Solicitação'}
               </button>
             </form>
           </div>
