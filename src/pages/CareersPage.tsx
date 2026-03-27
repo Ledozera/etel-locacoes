@@ -63,17 +63,10 @@ export default function CareersPage() {
 
     try {
       const base64File = await convertToBase64(file);
-      const apiKey = import.meta.env.VITE_BREVO_API_KEY;
-
-      if (!apiKey) {
-        throw new Error("Chave de API não configurada corretamente.");
-      }
-
-      const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      const response = await fetch('/api/email', {
         method: 'POST',
         headers: {
           'accept': 'application/json',
-          'api-key': apiKey,
           'content-type': 'application/json'
         },
         body: JSON.stringify({

@@ -26,6 +26,16 @@ export default defineConfig(({ mode }) => {
             if (constraints) return `?constraints=${encodeURIComponent(constraints)}`;
             return '';
           }
+        },
+        '/api/email': {
+          target: 'https://api.brevo.com/v3/smtp/email',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api\/email/, ''),
+          configure: (proxy, options) => {
+            proxy.on('proxyReq', (proxyReq, req, res) => {
+              proxyReq.setHeader('api-key', env.BREVO_API_KEY || '');
+            });
+          }
         }
       }
     }
