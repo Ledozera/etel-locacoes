@@ -70,7 +70,8 @@ export default function CareersPage() {
           'content-type': 'application/json'
         },
         body: JSON.stringify({
-          sender: { name: formData.name, email: formData.email },
+          sender: { name: "Currículo do Site - ETEL", email: "programa@etelestudos.com.br" },
+          replyTo: { name: formData.name, email: formData.email },
           to: [{ email: "programa@etelestudos.com.br" }],
           subject: `Novo Currículo Recebido: ${formData.name} - ${formData.role}`,
           htmlContent: `
