@@ -27,7 +27,7 @@ export default function HomePage() {
       { key: "Status", constraint_type: "equals", value: "Disponível" },
       { key: "Destaque", constraint_type: "equals", value: true }
     ]);
-    fetch(`https://financeiro-etel-89910.bubbleapps.io/version-test/api/1.1/obj/veiculos?constraints=${encodeURIComponent(constraints)}`)
+    fetch(`/api/veiculos?constraints=${encodeURIComponent(constraints)}`)
       .then(res => {
         if (!res.ok) throw new Error('Falha ao buscar dados');
         return res.json();

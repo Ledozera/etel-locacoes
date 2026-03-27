@@ -25,15 +25,15 @@ export default function VehicleDetailsPage() {
 
   useEffect(() => {
     const isNumericId = !isNaN(Number(id));
-    
+
     let url = '';
     if (isNumericId) {
       const constraints = JSON.stringify([
         { key: "sku", constraint_type: "equals", value: Number(id) }
       ]);
-      url = `https://financeiro-etel-89910.bubbleapps.io/version-test/api/1.1/obj/veiculos?constraints=${encodeURIComponent(constraints)}`;
+      url = `/api/veiculos?constraints=${encodeURIComponent(constraints)}`;
     } else {
-      url = `https://financeiro-etel-89910.bubbleapps.io/version-test/api/1.1/obj/veiculos/${id}`;
+      url = `/api/veiculos?bubble_id=${id}`;
     }
 
     fetch(url)
@@ -113,14 +113,14 @@ export default function VehicleDetailsPage() {
               {catDisplay}
             </span>
             {isDisponivel && (
-               <span className="bg-green-500/90 text-white backdrop-blur px-4 py-2 text-xs font-black uppercase tracking-widest rounded-sm shadow-lg w-fit">
-                 Disponível
-               </span>
+              <span className="bg-green-500/90 text-white backdrop-blur px-4 py-2 text-xs font-black uppercase tracking-widest rounded-sm shadow-lg w-fit">
+                Disponível
+              </span>
             )}
             {!isDisponivel && (
-               <span className="bg-red-500/90 text-white backdrop-blur px-4 py-2 text-xs font-black uppercase tracking-widest rounded-sm shadow-lg w-fit">
-                 Indisponível
-               </span>
+              <span className="bg-red-500/90 text-white backdrop-blur px-4 py-2 text-xs font-black uppercase tracking-widest rounded-sm shadow-lg w-fit">
+                Indisponível
+              </span>
             )}
           </div>
         </div>
@@ -134,38 +134,38 @@ export default function VehicleDetailsPage() {
           <p className="font-body text-on-surface-variant text-lg leading-relaxed mb-8 whitespace-pre-wrap">
             {veiculo.descricao || veiculo.Descricao || veiculo.description || 'Nenhuma descrição fornecida para este veículo.'}
           </p>
-          
+
           <div className="grid grid-cols-2 gap-6 mb-10">
             <div className="bg-surface-container-low p-6 rounded-xl border border-outline-variant/30 flex items-center">
-               <span className="material-symbols-outlined text-[32px] text-primary/80 mr-4">calendar_today</span>
-               <div>
-                  <div className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Ano</div>
-                  <div className="font-headline text-xl font-black text-on-surface">{veiculo.Ano || 'N/A'}</div>
-               </div>
-            </div>
-            
-            <div className="bg-surface-container-low p-6 rounded-xl border border-outline-variant/30 flex items-center">
-               <span className="material-symbols-outlined text-[32px] text-primary/80 mr-4">directions_car</span>
-               <div>
-                  <div className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Marca</div>
-                  <div className="font-headline text-xl font-black text-on-surface">{veiculo.Marca || 'N/A'}</div>
-               </div>
+              <span className="material-symbols-outlined text-[32px] text-primary/80 mr-4">calendar_today</span>
+              <div>
+                <div className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Ano</div>
+                <div className="font-headline text-xl font-black text-on-surface">{veiculo.Ano || 'N/A'}</div>
+              </div>
             </div>
 
             <div className="bg-surface-container-low p-6 rounded-xl border border-outline-variant/30 flex items-center">
-               <span className="material-symbols-outlined text-[32px] text-primary/80 mr-4">category</span>
-               <div>
-                  <div className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Categoria</div>
-                  <div className="font-headline text-xl font-black text-on-surface">{catDisplay || 'N/A'}</div>
-               </div>
+              <span className="material-symbols-outlined text-[32px] text-primary/80 mr-4">directions_car</span>
+              <div>
+                <div className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Marca</div>
+                <div className="font-headline text-xl font-black text-on-surface">{veiculo.Marca || 'N/A'}</div>
+              </div>
             </div>
 
             <div className="bg-surface-container-low p-6 rounded-xl border border-outline-variant/30 flex items-center">
-               <span className="material-symbols-outlined text-[32px] text-primary/80 mr-4">check_circle</span>
-               <div>
-                  <div className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Status</div>
-                  <div className="font-headline text-xl font-black text-on-surface">{isDisponivel ? 'Livre' : 'Ocupado'}</div>
-               </div>
+              <span className="material-symbols-outlined text-[32px] text-primary/80 mr-4">category</span>
+              <div>
+                <div className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Categoria</div>
+                <div className="font-headline text-xl font-black text-on-surface">{catDisplay || 'N/A'}</div>
+              </div>
+            </div>
+
+            <div className="bg-surface-container-low p-6 rounded-xl border border-outline-variant/30 flex items-center">
+              <span className="material-symbols-outlined text-[32px] text-primary/80 mr-4">check_circle</span>
+              <div>
+                <div className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Status</div>
+                <div className="font-headline text-xl font-black text-on-surface">{isDisponivel ? 'Livre' : 'Ocupado'}</div>
+              </div>
             </div>
           </div>
 
@@ -184,54 +184,54 @@ export default function VehicleDetailsPage() {
           )}
 
           {veiculo.Valor_Diaria && (
-             <div className="mb-6 bg-surface-container-low p-6 rounded-xl border border-outline-variant/30 flex flex-col">
-                <span className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">A partir de</span>
-                <div className="flex items-baseline gap-2">
-                   <span className="font-headline text-4xl font-black text-primary">
-                     {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(veiculo.Valor_Diaria))}
-                   </span>
-                   <span className="text-sm font-bold text-on-surface-variant">/ diária + taxas operacionais</span>
-                </div>
-             </div>
+            <div className="mb-6 bg-surface-container-low p-6 rounded-xl border border-outline-variant/30 flex flex-col">
+              <span className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">A partir de</span>
+              <div className="flex items-baseline gap-2">
+                <span className="font-headline text-4xl font-black text-primary">
+                  {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(veiculo.Valor_Diaria))}
+                </span>
+                <span className="text-sm font-bold text-on-surface-variant">/ diária + taxas operacionais</span>
+              </div>
+            </div>
           )}
 
           {isDisponivel ? (
-             <a 
-                href={whatsappLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full font-headline font-extrabold tracking-tight uppercase py-5 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 bg-primary-container text-on-primary hover:bg-primary-fixed-dim shadow-primary/20 hover:shadow-primary/40"
-             >
-               <span className="material-symbols-outlined">key</span>
-               Alugar Agora
-             </a>
+            <a
+              href={whatsappLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full font-headline font-extrabold tracking-tight uppercase py-5 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 bg-primary-container text-on-primary hover:bg-primary-fixed-dim shadow-primary/20 hover:shadow-primary/40"
+            >
+              <span className="material-symbols-outlined">key</span>
+              Alugar Agora
+            </a>
           ) : (
-             <button 
-                disabled
-                className="w-full font-headline font-extrabold tracking-tight uppercase py-5 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 bg-surface-variant text-on-surface-variant cursor-not-allowed opacity-70 border border-outline-variant"
-             >
-               <span className="material-symbols-outlined">lock</span>
-               Indisponível no momento
-             </button>
+            <button
+              disabled
+              className="w-full font-headline font-extrabold tracking-tight uppercase py-5 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 bg-surface-variant text-on-surface-variant cursor-not-allowed opacity-70 border border-outline-variant"
+            >
+              <span className="material-symbols-outlined">lock</span>
+              Indisponível no momento
+            </button>
           )}
 
-          <button 
-             onClick={() => {
-                const url = window.location.origin + `/frota/${veiculo.sku || id}`;
-                if (navigator.share) {
-                   navigator.share({
-                      title: `${brand}${displayName}`,
-                      url: url
-                   }).catch(console.error);
-                } else {
-                   navigator.clipboard.writeText(url);
-                   alert('Link copiado para a área de transferência!');
-                }
-             }}
-             className="w-full mt-4 font-headline font-bold text-on-surface-variant uppercase py-4 rounded-xl transition-all flex items-center justify-center gap-2 bg-surface-container hover:bg-surface-container-highest border border-outline-variant/30"
+          <button
+            onClick={() => {
+              const url = window.location.origin + `/frota/${veiculo.sku || id}`;
+              if (navigator.share) {
+                navigator.share({
+                  title: `${brand}${displayName}`,
+                  url: url
+                }).catch(console.error);
+              } else {
+                navigator.clipboard.writeText(url);
+                alert('Link copiado para a área de transferência!');
+              }
+            }}
+            className="w-full mt-4 font-headline font-bold text-on-surface-variant uppercase py-4 rounded-xl transition-all flex items-center justify-center gap-2 bg-surface-container hover:bg-surface-container-highest border border-outline-variant/30"
           >
-             <span className="material-symbols-outlined">share</span>
-             Compartilhar Veículo
+            <span className="material-symbols-outlined">share</span>
+            Compartilhar Veículo
           </button>
         </div>
       </div>

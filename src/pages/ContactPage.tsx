@@ -16,7 +16,7 @@ export default function ContactPage() {
             <div>
               <h3 className="text-xl font-headline font-bold text-white mb-4">A História</h3>
               <p className="text-on-surface-variant font-body leading-relaxed">
-                Fundada com o propósito de transformar o setor de locação industrial, a ETEL Locações consolidou-se como referência em soluções de alta performance. Há décadas, provemos a infraestrutura necessária para grandes obras e operações logísticas, unindo robustez técnica e inovação constante.
+                Fundada com o propósito de inovar no setor de locação industrial, a ETEL Locações nasce com a missão de entregar soluções de alta performance. Com visão de futuro e foco na excelência, estamos preparados para prover a infraestrutura necessária para grandes obras e operações logísticas, unindo robustez técnica e tecnologia desde o primeiro dia.
               </p>
             </div>
             <div>
