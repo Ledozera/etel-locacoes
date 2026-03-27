@@ -31,8 +31,8 @@ export default defineConfig(({ mode }) => {
           target: 'https://api.brevo.com/v3/smtp/email',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api\/email/, ''),
-          configure: (proxy, options) => {
-            proxy.on('proxyReq', (proxyReq, req, res) => {
+          configure: (proxy) => {
+            proxy.on('proxyReq', (proxyReq) => {
               proxyReq.setHeader('api-key', env.BREVO_API_KEY || '');
             });
           }
