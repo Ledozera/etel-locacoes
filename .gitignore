@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Docs
+DESIGN.md
+README.md
+SITE.md
