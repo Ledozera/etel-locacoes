@@ -16,7 +16,15 @@ export default function FleetPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const categoriasFrota = ['executivo', 'suv', 'pickup', 'econômico'];
+  const categoriasLista = [
+    { id: 'executivo', label: 'Executivo' },
+    { id: 'hatch', label: 'Hatch' },
+    { id: 'pickup', label: 'Pick-up' },
+    { id: 'sedan', label: 'Sedan' },
+    { id: 'suv', label: 'SUV' },
+    { id: 'van', label: 'Van' }
+  ];
+  const categoriasFrota = categoriasLista.map(c => c.id);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(categoriasFrota);
 
   const toggleCategory = (cat: string) => {
@@ -29,7 +37,7 @@ export default function FleetPage() {
     const rawCat = v.categoria || v.Categoria;
     if (!rawCat) return false;
     let cat = rawCat.toLowerCase();
-    if (cat === 'economico') cat = 'econômico';
+    if (cat === 'pick-up') cat = 'pickup';
     return selectedCategories.includes(cat);
   });
 
@@ -53,9 +61,8 @@ export default function FleetPage() {
           const rawCat = v.categoria || v.Categoria;
           if (!rawCat) return false;
           const cat = rawCat.toLowerCase();
-          // Pode vir com ou sem acento, entao fazemos match string
           return categoriasFrota.includes(cat) ||
-            (cat === 'economico' && categoriasFrota.includes('econômico'));
+            (cat === 'pick-up' && categoriasFrota.includes('pickup'));
         });
         setVeiculos(frota);
       })
@@ -74,34 +81,22 @@ export default function FleetPage() {
           <section>
             <h3 className="font-headline text-on-surface font-extrabold text-sm uppercase tracking-widest mb-6">Categorias</h3>
             <div className="space-y-4">
-              <label className="flex items-center group cursor-pointer">
-                <input checked={selectedCategories.includes('executivo')} onChange={() => toggleCategory('executivo')} className="hidden peer" type="checkbox" />
-                <span className="w-5 h-5 border-2 border-outline-variant rounded-sm flex items-center justify-center peer-checked:bg-primary-container peer-checked:border-primary-container transition-all">
-                  <span className="material-symbols-outlined text-[16px] text-on-primary font-bold peer-checked:block hidden">check</span>
-                </span>
-                <span className="ml-4 font-body text-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Executivo</span>
-              </label>
-              <label className="flex items-center group cursor-pointer">
-                <input checked={selectedCategories.includes('suv')} onChange={() => toggleCategory('suv')} className="hidden peer" type="checkbox" />
-                <span className="w-5 h-5 border-2 border-outline-variant rounded-sm flex items-center justify-center peer-checked:bg-primary-container peer-checked:border-primary-container transition-all">
-                  <span className="material-symbols-outlined text-[16px] text-on-primary font-bold peer-checked:block hidden">check</span>
-                </span>
-                <span className="ml-4 font-body text-sm text-on-surface-variant group-hover:text-on-surface transition-colors">SUV</span>
-              </label>
-              <label className="flex items-center group cursor-pointer">
-                <input checked={selectedCategories.includes('econômico')} onChange={() => toggleCategory('econômico')} className="hidden peer" type="checkbox" />
-                <span className="w-5 h-5 border-2 border-outline-variant rounded-sm flex items-center justify-center peer-checked:bg-primary-container peer-checked:border-primary-container transition-all">
-                  <span className="material-symbols-outlined text-[16px] text-on-primary font-bold peer-checked:block hidden">check</span>
-                </span>
-                <span className="ml-4 font-body text-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Econômico</span>
-              </label>
-              <label className="flex items-center group cursor-pointer">
-                <input checked={selectedCategories.includes('pickup')} onChange={() => toggleCategory('pickup')} className="hidden peer" type="checkbox" />
-                <span className="w-5 h-5 border-2 border-outline-variant rounded-sm flex items-center justify-center peer-checked:bg-primary-container peer-checked:border-primary-container transition-all">
-                  <span className="material-symbols-outlined text-[16px] text-on-primary font-bold peer-checked:block hidden">check</span>
-                </span>
-                <span className="ml-4 font-body text-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Pickup</span>
-              </label>
+              {categoriasLista.map(categoria => (
+                <label key={categoria.id} className="flex items-center group cursor-pointer">
+                  <input
+                    checked={selectedCategories.includes(categoria.id)}
+                    onChange={() => toggleCategory(categoria.id)}
+                    className="hidden peer"
+                    type="checkbox"
+                  />
+                  <span className="w-5 h-5 border-2 border-outline-variant rounded-sm flex items-center justify-center peer-checked:bg-primary-container peer-checked:border-primary-container transition-all">
+                    <span className="material-symbols-outlined text-[16px] text-on-primary font-bold peer-checked:block hidden">check</span>
+                  </span>
+                  <span className="ml-4 font-body text-sm text-on-surface-variant group-hover:text-on-surface transition-colors">
+                    {categoria.label}
+                  </span>
+                </label>
+              ))}
             </div>
           </section>
         </div>
@@ -139,37 +134,88 @@ export default function FleetPage() {
               const displayName = v.nome || v.Modelo || 'Veículo';
               const brand = v.Marca ? `${v.Marca} ` : '';
               const catDisplay = v.categoria || v.Categoria;
+              const motor = v.Motor || v.motor || '';
+              const versao = v.versao || v.Versao || v['dbtype versao'] || '';
+              const cambioDisplay = v.Cambio || v.cambio || 'Automático';
+              const combustivel = v.Combustivel || 'Flex';
+              const portas = v.Portas ? `${v.Portas}p` : '';
+              const fullSubtitle = `${motor} ${versao} ${combustivel} ${portas}`.trim().replace(/\s+/g, ' ');
 
               return (
-                <Link to={`/frota/${v.sku || v._id}`} key={v._id || Math.random().toString()} className="group flex flex-col bg-surface-container-low overflow-hidden transition-all duration-300 rounded-xl cursor-pointer hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-1">
-                  <div className="h-64 overflow-hidden relative">
-                    <img alt={displayName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src={imgUrl} />
-                    <div className="absolute top-4 left-4">
-                      <span className="bg-surface-container-highest/90 backdrop-blur px-3 py-1 text-[10px] font-black uppercase tracking-widest text-primary">
-                        {catDisplay}
-                      </span>
+                <Link to={`/frota/${v.sku || v._id}`} key={v._id || Math.random().toString()} className="group flex flex-col bg-surface md:bg-surface-container-low overflow-hidden transition-all duration-300 rounded-xl cursor-pointer hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-1 border border-outline-variant/20 md:border-none">
+
+                  {/* Content Container (Horizontal on Mobile, Vertical on Desktop) */}
+                  <div className="flex flex-row md:flex-col p-3 md:p-0 gap-3 md:gap-0">
+
+                    {/* Image Area */}
+                    <div className="w-[110px] sm:w-[150px] md:w-full h-[100px] sm:h-[130px] md:h-64 overflow-hidden relative flex-shrink-0 rounded-lg md:rounded-none outline outline-1 outline-outline-variant/10 md:outline-none bg-surface-container-highest/20">
+                      <img alt={displayName} className="w-full h-full object-cover md:group-hover:scale-105 transition-transform duration-500" src={imgUrl} />
+                      <div className="absolute top-2 left-2 md:top-4 md:left-4 hidden md:block">
+                        <span className="bg-surface-container-highest/90 backdrop-blur px-3 py-1 text-[10px] font-black uppercase tracking-widest text-primary">
+                          {catDisplay}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Text / Data Area */}
+                    <div className="flex-1 flex flex-col md:p-8 md:bg-surface-container-high">
+                      <div className="flex justify-between items-start mb-1 md:mb-1">
+                        <h2 className="font-headline text-[13px] sm:text-base md:text-2xl font-bold text-on-surface leading-tight uppercase line-clamp-1" title={`${brand}${displayName}`}>
+                          {brand}{displayName}
+                        </h2>
+                      </div>
+
+                      {/* Extra details (Desktop + Mobile) */}
+                      <div className="mb-2 md:mb-4 space-y-2">
+                        <p className="font-body text-[10px] sm:text-xs text-on-surface-variant line-clamp-1">
+                          {fullSubtitle || 'Veículo Padrão'}
+                        </p>
+                        <div className="flex items-center gap-1 text-[10px] sm:text-[11px] font-medium text-on-surface-variant bg-surface-container w-fit px-1.5 py-0.5 rounded">
+                          <span className="material-symbols-outlined text-[12px]">settings</span>
+                          {cambioDisplay}
+                        </div>
+                      </div>
+
+                      <div className="md:hidden space-y-1.5 mb-2">
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] sm:text-xs text-on-surface-variant">
+                          <div className="flex items-center gap-1">
+                            <span className="material-symbols-outlined text-[12px]">calendar_today</span>
+                            {v.Ano || '2024'}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1 text-[10px] sm:text-xs text-on-surface-variant">
+                          <span className="material-symbols-outlined text-[12px]">location_on</span>
+                          Locação ETEL
+                        </div>
+                      </div>
+
+                      <div className="mt-auto md:flex-grow">
+                        {v.Valor_Diaria && (
+                          <div className="md:mb-4">
+                            <div className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest hidden md:block">A partir de</div>
+                            <div className="font-headline font-black text-base sm:text-lg md:text-2xl text-primary">
+                              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(v.Valor_Diaria))}
+                              <span className="text-[10px] md:text-[12px] font-bold text-on-surface-variant ml-1">/ diária</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Desktop Button */}
+                      <div className="hidden md:block pt-4 border-t border-outline-variant/10 mt-4">
+                        <button className="w-full bg-primary-container text-on-primary font-headline font-extrabold tracking-tight uppercase py-4 rounded-lg hover:bg-primary-fixed-dim transition-all shadow-lg shadow-primary/10 pointer-events-none">
+                          Ver Detalhes
+                        </button>
+                      </div>
                     </div>
                   </div>
-                  <div className="p-8 flex flex-col bg-surface-container-high flex-grow">
-                    <h2 className="font-headline text-2xl font-bold text-on-surface mb-4">{brand}{displayName}</h2>
 
-                    <div className="flex-grow">
-                      {v.Valor_Diaria && (
-                        <div className="mb-4">
-                           <div className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">A partir de</div>
-                           <div className="font-headline font-black text-2xl text-primary">
-                             {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(v.Valor_Diaria))}
-                             <span className="text-[12px] font-bold text-on-surface-variant ml-1">/ diária</span>
-                           </div>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="pt-4 border-t border-outline-variant/10">
-                      <button className="w-full bg-primary-container text-on-primary font-headline font-extrabold tracking-tight uppercase py-4 rounded-lg hover:bg-primary-fixed-dim transition-all shadow-lg shadow-primary/10 pointer-events-none">
-                        Ver Detalhes
-                      </button>
-                    </div>
+                  {/* Mobile Action Bar */}
+                  <div className="md:hidden bg-surface-container-lowest p-2 pt-3 border-t border-outline-variant/10">
+                    <button className="w-full bg-surface-container-highest text-on-surface font-headline font-bold text-xs sm:text-sm uppercase py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors pointer-events-none">
+                      <span className="material-symbols-outlined text-[16px]">info</span>
+                      Ver Detalhes
+                    </button>
                   </div>
                 </Link>
               );

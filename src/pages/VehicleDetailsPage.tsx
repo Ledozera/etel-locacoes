@@ -89,6 +89,12 @@ export default function VehicleDetailsPage() {
   const imgUrl = fotoUrl.startsWith('//') ? `https:${fotoUrl}` : fotoUrl;
   const displayName = veiculo.nome || veiculo.Modelo || 'Veículo';
   const brand = veiculo.Marca ? `${veiculo.Marca} ` : '';
+  const versao = veiculo.versao || veiculo.Versao || veiculo['dbtype versao'] || '';
+  const motor = veiculo.Motor || veiculo.motor || '';
+  const cambio = veiculo.Cambio || veiculo.cambio || 'Automático';
+  const combustivel = veiculo.Combustivel || veiculo.combustivel || 'Flex';
+  const portas = veiculo.Portas || veiculo.portas || '4';
+  const quilometragem = veiculo.Quilometragem || veiculo.quilometragem;
   const catDisplay = veiculo.categoria || veiculo.Categoria;
   const rawStatus = veiculo.Status || veiculo.status;
   const statusStr = typeof rawStatus === 'string' ? rawStatus.toLowerCase() : rawStatus?.Display?.toLowerCase() || '';
@@ -126,45 +132,64 @@ export default function VehicleDetailsPage() {
         </div>
 
         {/* Informacoes */}
-        <div className="flex flex-col h-full justify-center">
-          <h1 className="font-headline text-4xl lg:text-5xl font-black text-on-surface tracking-tighter mb-4">
+        <div className="flex flex-col h-full justify-center mt-6 lg:mt-0">
+          <h1 className="font-headline text-3xl sm:text-4xl lg:text-5xl font-black text-on-surface tracking-tighter mb-1">
             {brand}{displayName}
           </h1>
+          <p className="font-headline text-xl sm:text-2xl text-on-surface-variant mb-6 font-bold">{motor} {versao}</p>
 
-          <p className="font-body text-on-surface-variant text-lg leading-relaxed mb-8 whitespace-pre-wrap">
+          {/* Quick Info Badges */}
+          <div className="flex flex-wrap gap-2 mb-8">
+             <div className="flex items-center gap-1.5 text-xs font-bold text-on-surface bg-surface-container px-3 py-1.5 rounded-md shadow-sm">
+               <span className="material-symbols-outlined text-[16px]">settings</span> {cambio}
+             </div>
+             <div className="flex items-center gap-1.5 text-xs font-bold text-on-surface bg-surface-container px-3 py-1.5 rounded-md shadow-sm">
+               <span className="material-symbols-outlined text-[16px]">local_gas_station</span> {combustivel}
+             </div>
+             <div className="flex items-center gap-1.5 text-xs font-bold text-on-surface bg-surface-container px-3 py-1.5 rounded-md shadow-sm">
+               <span className="material-symbols-outlined text-[16px]">meeting_room</span> {portas} portas
+             </div>
+             {quilometragem && (
+               <div className="flex items-center gap-1.5 text-xs font-bold text-on-surface bg-surface-container px-3 py-1.5 rounded-md shadow-sm">
+                 <span className="material-symbols-outlined text-[16px]">speed</span> {quilometragem} Km
+               </div>
+             )}
+          </div>
+
+          <p className="font-body text-on-surface-variant text-base sm:text-lg leading-relaxed mb-8 whitespace-pre-wrap">
             {veiculo.descricao || veiculo.Descricao || veiculo.description || 'Nenhuma descrição fornecida para este veículo.'}
           </p>
 
-          <div className="grid grid-cols-2 gap-6 mb-10">
-            <div className="bg-surface-container-low p-6 rounded-xl border border-outline-variant/30 flex items-center">
-              <span className="material-symbols-outlined text-[32px] text-primary/80 mr-4">calendar_today</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-10">
+            <div className="bg-surface-container-low p-4 sm:p-6 rounded-xl border border-outline-variant/30 flex items-center shadow-lg shadow-black/5 hover:-translate-y-1 transition-transform">
+              <span className="material-symbols-outlined text-[28px] sm:text-[32px] text-primary/80 mr-4">calendar_today</span>
               <div>
-                <div className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Ano</div>
-                <div className="font-headline text-xl font-black text-on-surface">{veiculo.Ano || 'N/A'}</div>
+                <div className="text-[10px] sm:text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Ano / Fab</div>
+                <div className="font-headline text-lg sm:text-xl font-black text-on-surface">{veiculo.Ano || 'N/A'}</div>
               </div>
             </div>
 
-            <div className="bg-surface-container-low p-6 rounded-xl border border-outline-variant/30 flex items-center">
-              <span className="material-symbols-outlined text-[32px] text-primary/80 mr-4">directions_car</span>
+            <div className="bg-surface-container-low p-4 sm:p-6 rounded-xl border border-outline-variant/30 flex items-center shadow-lg shadow-black/5 hover:-translate-y-1 transition-transform">
+              <span className="material-symbols-outlined text-[28px] sm:text-[32px] text-primary/80 mr-4">directions_car</span>
               <div>
-                <div className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Marca</div>
-                <div className="font-headline text-xl font-black text-on-surface">{veiculo.Marca || 'N/A'}</div>
+                <div className="text-[10px] sm:text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Marca</div>
+                <div className="font-headline text-lg sm:text-xl font-black text-on-surface">{veiculo.Marca || 'N/A'}</div>
               </div>
             </div>
 
-            <div className="bg-surface-container-low p-6 rounded-xl border border-outline-variant/30 flex items-center">
-              <span className="material-symbols-outlined text-[32px] text-primary/80 mr-4">category</span>
+            <div className="bg-surface-container-low p-4 sm:p-6 rounded-xl border border-outline-variant/30 flex items-center shadow-lg shadow-black/5 hover:-translate-y-1 transition-transform">
+              <span className="material-symbols-outlined text-[28px] sm:text-[32px] text-primary/80 mr-4">category</span>
               <div>
-                <div className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Categoria</div>
-                <div className="font-headline text-xl font-black text-on-surface">{catDisplay || 'N/A'}</div>
+                <div className="text-[10px] sm:text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Categoria</div>
+                <div className="font-headline text-lg sm:text-xl font-black text-on-surface">{catDisplay || 'N/A'}</div>
               </div>
             </div>
 
-            <div className="bg-surface-container-low p-6 rounded-xl border border-outline-variant/30 flex items-center">
-              <span className="material-symbols-outlined text-[32px] text-primary/80 mr-4">check_circle</span>
+            <div className="bg-surface-container-low p-4 sm:p-6 rounded-xl border border-outline-variant/30 flex items-center shadow-lg shadow-black/5 hover:-translate-y-1 transition-transform">
+              <span className="material-symbols-outlined text-[28px] sm:text-[32px] text-primary/80 mr-4 flex-shrink-0">check_circle</span>
               <div>
-                <div className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Status</div>
-                <div className="font-headline text-xl font-black text-on-surface">{isDisponivel ? 'Livre' : 'Ocupado'}</div>
+                <div className="text-[10px] sm:text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Status</div>
+                <div className="font-headline text-lg sm:text-xl font-black text-on-surface whitespace-nowrap">{isDisponivel ? 'Livre' : 'Ocupado'}</div>
               </div>
             </div>
           </div>

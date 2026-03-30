@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
 interface Veiculo {
@@ -21,6 +21,21 @@ interface Veiculo {
 export default function HomePage() {
   const [featuredVehicles, setFeaturedVehicles] = useState<Veiculo[]>([]);
   const [loading, setLoading] = useState(true);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const scrollLeftBtn = () => {
+    if (scrollContainerRef.current) {
+      const itemWidth = scrollContainerRef.current.children[0]?.clientWidth || 400;
+      scrollContainerRef.current.scrollBy({ left: -(itemWidth + 32), behavior: 'smooth' });
+    }
+  };
+
+  const scrollRightBtn = () => {
+    if (scrollContainerRef.current) {
+      const itemWidth = scrollContainerRef.current.children[0]?.clientWidth || 400;
+      scrollContainerRef.current.scrollBy({ left: (itemWidth + 32), behavior: 'smooth' });
+    }
+  };
 
   useEffect(() => {
     const constraints = JSON.stringify([
@@ -99,9 +114,20 @@ export default function HomePage() {
 
       {/* Quick Links: Bento Grid Highlights */}
       <section className="py-32 px-6 md:px-12 max-w-7xl mx-auto">
-        <div className="mb-20 space-y-4">
-          <h2 className="font-headline font-bold text-3xl md:text-5xl text-on-surface tracking-tight">Destaques da Frota e Máquinas</h2>
-          <div className="w-24 h-1.5 bg-primary-container"></div>
+        <div className="mb-20 flex flex-col md:flex-row md:justify-between md:items-end gap-6">
+          <div className="space-y-4">
+            <h2 className="font-headline font-bold text-3xl md:text-5xl text-on-surface tracking-tight">Destaques da Frota e Máquinas</h2>
+            <div className="w-24 h-1.5 bg-primary-container"></div>
+          </div>
+          
+          <div className="flex gap-4 hidden md:flex">
+            <button onClick={scrollLeftBtn} className="w-12 h-12 flex items-center justify-center rounded-full bg-surface-container-high hover:bg-primary-container text-on-surface hover:text-on-primary transition-all shadow-lg active:scale-95" aria-label="Anterior">
+              <span className="material-symbols-outlined">chevron_left</span>
+            </button>
+            <button onClick={scrollRightBtn} className="w-12 h-12 flex items-center justify-center rounded-full bg-surface-container-high hover:bg-primary-container text-on-surface hover:text-on-primary transition-all shadow-lg active:scale-95" aria-label="Próximo">
+              <span className="material-symbols-outlined">chevron_right</span>
+            </button>
+          </div>
         </div>
 
         {loading ? (
@@ -116,16 +142,33 @@ export default function HomePage() {
             Nenhum veículo em destaque encontrado no momento.
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="relative group">
+            {/* Mobile/Tablet Buttons */}
+            <div className="absolute top-1/2 -left-4 -translate-y-1/2 z-10 md:hidden opacity-0 group-hover:opacity-100 transition-opacity">
+              <button onClick={scrollLeftBtn} className="w-10 h-10 flex items-center justify-center rounded-full bg-primary-container text-on-primary shadow-xl active:scale-95" aria-label="Anterior">
+                <span className="material-symbols-outlined">chevron_left</span>
+              </button>
+            </div>
+            <div className="absolute top-1/2 -right-4 -translate-y-1/2 z-10 md:hidden opacity-0 group-hover:opacity-100 transition-opacity">
+              <button onClick={scrollRightBtn} className="w-10 h-10 flex items-center justify-center rounded-full bg-primary-container text-on-primary shadow-xl active:scale-95" aria-label="Próximo">
+                <span className="material-symbols-outlined">chevron_right</span>
+              </button>
+            </div>
+
+            <div ref={scrollContainerRef} className="flex overflow-x-auto snap-x snap-mandatory gap-8 pb-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] overscroll-x-contain scroll-smooth">
             {featuredVehicles.map(v => {
               const fotoUrl = v['Foto de capa'] || v.foto || v.Foto || 'https://images.unsplash.com/photo-1590496739777-50a11270b200?w=800&q=80';
               const imgUrl = fotoUrl.startsWith('//') ? `https:${fotoUrl}` : fotoUrl;
               const displayName = v.nome || v.Modelo || 'Veículo';
               const brand = v.Marca ? `${v.Marca} ` : '';
+              const motor = v.Motor || v.motor || '';
+              const versao = v.versao || v.Versao || v['dbtype versao'] || '';
+              const cambioDisplay = v.Cambio || v.cambio || 'Automático';
               const catDisplay = v.categoria || v.Categoria;
+              const fullSubtitle = `${motor} ${versao}`.trim().replace(/\s+/g, ' ');
 
               return (
-                <Link to={`/frota/${v.sku || v._id}`} key={v._id || Math.random().toString()} className="group flex flex-col bg-surface-container-low overflow-hidden transition-all duration-300 rounded-xl cursor-pointer hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-1">
+                <Link to={`/frota/${v.sku || v._id}`} key={v._id || Math.random().toString()} className="shrink-0 snap-start w-full sm:w-[calc(50%-1rem)] md:w-[calc(33.333%-1.33rem)] group flex flex-col bg-surface-container-low overflow-hidden transition-all duration-300 rounded-xl cursor-pointer hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-1">
                   <div className="h-64 overflow-hidden relative">
                     <img alt={displayName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src={imgUrl} />
                     {catDisplay && (
@@ -137,7 +180,12 @@ export default function HomePage() {
                     )}
                   </div>
                   <div className="p-8 flex flex-col bg-surface-container-high flex-grow">
-                    <h2 className="font-headline text-2xl font-bold text-on-surface mb-4">{brand}{displayName}</h2>
+                    <h2 className="font-headline text-xl font-bold text-on-surface mb-1 line-clamp-1" title={`${brand}${displayName}`}>{brand}{displayName}</h2>
+                    <p className="font-body text-xs text-on-surface-variant mb-2 line-clamp-1">{fullSubtitle}</p>
+                    <div className="flex items-center gap-1 text-[11px] font-medium text-on-surface-variant mb-4 bg-surface-container px-2 py-1 rounded w-fit">
+                       <span className="material-symbols-outlined text-[14px]">settings</span>
+                       {cambioDisplay}
+                    </div>
 
                     <div className="flex-grow">
                       {v.Valor_Diaria && (
@@ -160,6 +208,7 @@ export default function HomePage() {
                 </Link>
               );
             })}
+            </div>
           </div>
         )}
       </section>
