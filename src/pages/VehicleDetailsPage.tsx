@@ -13,7 +13,8 @@ interface Veiculo {
   foto?: string;
   Foto?: string;
   categoria?: string;
-  Categoria?: string;
+  portas?: number;
+  lugares?: number
   [key: string]: any;
 }
 
@@ -91,9 +92,11 @@ export default function VehicleDetailsPage() {
   const brand = veiculo.Marca ? `${veiculo.Marca} ` : '';
   const versao = veiculo.versao || veiculo.Versao || veiculo['dbtype versao'] || '';
   const motor = veiculo.Motor || veiculo.motor || '';
-  const cambio = veiculo.Cambio || veiculo.cambio || 'Automático';
-  const combustivel = veiculo.Combustivel || veiculo.combustivel || 'Flex';
-  const portas = veiculo.Portas || veiculo.portas || '4';
+  const cambio = veiculo.Cambio || veiculo.cambio;
+  const combustivel = veiculo.Combustivel || veiculo.combustivel;
+  const portas = veiculo.Portas || veiculo.portas;
+  const lugares = veiculo.Lugares || veiculo.lugares;
+  const cor = veiculo.Cor || veiculo.cor;
   const quilometragem = veiculo.Quilometragem || veiculo.quilometragem;
   const catDisplay = veiculo.categoria || veiculo.Categoria;
   const rawStatus = veiculo.Status || veiculo.status;
@@ -140,20 +143,36 @@ export default function VehicleDetailsPage() {
 
           {/* Quick Info Badges */}
           <div className="flex flex-wrap gap-2 mb-8">
-             <div className="flex items-center gap-1.5 text-xs font-bold text-on-surface bg-surface-container px-3 py-1.5 rounded-md shadow-sm">
-               <span className="material-symbols-outlined text-[16px]">settings</span> {cambio}
-             </div>
-             <div className="flex items-center gap-1.5 text-xs font-bold text-on-surface bg-surface-container px-3 py-1.5 rounded-md shadow-sm">
-               <span className="material-symbols-outlined text-[16px]">local_gas_station</span> {combustivel}
-             </div>
-             <div className="flex items-center gap-1.5 text-xs font-bold text-on-surface bg-surface-container px-3 py-1.5 rounded-md shadow-sm">
-               <span className="material-symbols-outlined text-[16px]">meeting_room</span> {portas} portas
-             </div>
-             {quilometragem && (
-               <div className="flex items-center gap-1.5 text-xs font-bold text-on-surface bg-surface-container px-3 py-1.5 rounded-md shadow-sm">
-                 <span className="material-symbols-outlined text-[16px]">speed</span> {quilometragem} Km
-               </div>
-             )}
+            {cambio && (
+              <div className="flex items-center gap-1.5 text-xs font-bold text-on-surface bg-surface-container px-3 py-1.5 rounded-md shadow-sm">
+                <span className="material-symbols-outlined text-[16px]">settings</span> {cambio}
+              </div>
+            )}
+            {combustivel && (
+              <div className="flex items-center gap-1.5 text-xs font-bold text-on-surface bg-surface-container px-3 py-1.5 rounded-md shadow-sm">
+                <span className="material-symbols-outlined text-[16px]">local_gas_station</span> {combustivel}
+              </div>
+            )}
+            {portas && (
+              <div className="flex items-center gap-1.5 text-xs font-bold text-on-surface bg-surface-container px-3 py-1.5 rounded-md shadow-sm">
+                <span className="material-symbols-outlined text-[16px]">meeting_room</span> {portas} portas
+              </div>
+            )}
+            {lugares && (
+              <div className="flex items-center gap-1.5 text-xs font-bold text-on-surface bg-surface-container px-3 py-1.5 rounded-md shadow-sm">
+                <span className="material-symbols-outlined text-[16px]">group</span> {lugares} lugares
+              </div>
+            )}
+            {cor && (
+              <div className="flex items-center gap-1.5 text-xs font-bold text-on-surface bg-surface-container px-3 py-1.5 rounded-md shadow-sm">
+                <span className="material-symbols-outlined text-[16px]">palette</span> {cor}
+              </div>
+            )}
+            {quilometragem && (
+              <div className="flex items-center gap-1.5 text-xs font-bold text-on-surface bg-surface-container px-3 py-1.5 rounded-md shadow-sm">
+                <span className="material-symbols-outlined text-[16px]">speed</span> {quilometragem} Km
+              </div>
+            )}
           </div>
 
           <p className="font-body text-on-surface-variant text-base sm:text-lg leading-relaxed mb-8 whitespace-pre-wrap">

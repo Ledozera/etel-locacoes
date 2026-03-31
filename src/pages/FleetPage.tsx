@@ -137,9 +137,8 @@ export default function FleetPage() {
               const motor = v.Motor || v.motor || '';
               const versao = v.versao || v.Versao || v['dbtype versao'] || '';
               const cambioDisplay = v.Cambio || v.cambio || 'Automático';
-              const combustivel = v.Combustivel || 'Flex';
-              const portas = v.Portas ? `${v.Portas}p` : '';
-              const fullSubtitle = `${motor} ${versao} ${combustivel} ${portas}`.trim().replace(/\s+/g, ' ');
+              const combustivel = v.Combustivel || v.combustivel || 'Flex';
+              const fullSubtitle = `${motor} ${versao} ${combustivel}`.trim().replace(/\s+/g, ' ');
 
               return (
                 <Link to={`/frota/${v.sku || v._id}`} key={v._id || Math.random().toString()} className="group flex flex-col bg-surface md:bg-surface-container-low overflow-hidden transition-all duration-300 rounded-xl cursor-pointer hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-1 border border-outline-variant/20 md:border-none">
