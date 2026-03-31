@@ -26,20 +26,72 @@ export default function FleetPage() {
   ];
   const categoriasFrota = categoriasLista.map(c => c.id);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(categoriasFrota);
+  const [selectedCambios, setSelectedCambios] = useState<string[]>([]);
+  const [selectedCombustiveis, setSelectedCombustiveis] = useState<string[]>([]);
+  const [selectedLugares, setSelectedLugares] = useState<number[]>([]);
+  const [minPrice, setMinPrice] = useState<string>('');
+  const [maxPrice, setMaxPrice] = useState<string>('');
+
+  const [availableCambios, setAvailableCambios] = useState<string[]>([]);
+  const [availableCombustiveis, setAvailableCombustiveis] = useState<string[]>([]);
+  const [availableLugares, setAvailableLugares] = useState<number[]>([]);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 8;
 
   const toggleCategory = (cat: string) => {
-    setSelectedCategories(prev =>
-      prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
-    );
+    setSelectedCategories(prev => prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]);
+    setCurrentPage(1);
+  };
+  const toggleCambio = (c: string) => {
+    setSelectedCambios(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c]);
+    setCurrentPage(1);
+  };
+  const toggleCombustivel = (c: string) => {
+    setSelectedCombustiveis(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c]);
+    setCurrentPage(1);
+  };
+  const toggleLugares = (l: number) => {
+    setSelectedLugares(prev => prev.includes(l) ? prev.filter(x => x !== l) : [...prev, l]);
+    setCurrentPage(1);
   };
 
   const filteredVeiculos = veiculos.filter(v => {
+    // Filtering by Category
     const rawCat = v.categoria || v.Categoria;
     if (!rawCat) return false;
     let cat = rawCat.toLowerCase();
     if (cat === 'pick-up') cat = 'pickup';
-    return selectedCategories.includes(cat);
+    if (!selectedCategories.includes(cat)) return false;
+
+    // Filtering by Cambio
+    if (selectedCambios.length > 0) {
+      const cambio = v.Cambio || v.cambio || 'Automático';
+      if (!selectedCambios.includes(cambio)) return false;
+    }
+
+    // Filtering by Combustivel
+    if (selectedCombustiveis.length > 0) {
+      const combustivel = v.Combustivel || v.combustivel || 'Flex';
+      if (!selectedCombustiveis.includes(combustivel)) return false;
+    }
+
+    // Filtering by Lugares
+    if (selectedLugares.length > 0) {
+      const lugares = Number(v.Lugares || v.lugares || 5);
+      if (!selectedLugares.includes(lugares)) return false;
+    }
+
+    // Filtering by Price (Valor_Diaria)
+    const valorDiaria = Number(v.Valor_Diaria) || 0;
+    if (minPrice && valorDiaria < Number(minPrice)) return false;
+    if (maxPrice && valorDiaria > Number(maxPrice)) return false;
+
+    return true;
   });
+
+  const totalPages = Math.ceil(filteredVeiculos.length / ITEMS_PER_PAGE);
+  const paginatedVeiculos = filteredVeiculos.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   useEffect(() => {
     const constraints = JSON.stringify([
@@ -65,6 +117,14 @@ export default function FleetPage() {
             (cat === 'pick-up' && categoriasFrota.includes('pickup'));
         });
         setVeiculos(frota);
+
+        const cambios = Array.from(new Set(frota.map((v: Veiculo) => v.Cambio || v.cambio || 'Automático'))).filter(Boolean) as string[];
+        const combustiveis = Array.from(new Set(frota.map((v: Veiculo) => v.Combustivel || v.combustivel || 'Flex'))).filter(Boolean) as string[];
+        const lugaresNum = Array.from(new Set(frota.map((v: Veiculo) => Number(v.Lugares || v.lugares || 5)))).filter((n: unknown) => typeof n === 'number' && !isNaN(n)).sort((a: any, b: any) => a - b) as number[];
+
+        setAvailableCambios(cambios);
+        setAvailableCombustiveis(combustiveis);
+        setAvailableLugares(lugaresNum);
       })
       .catch(err => {
         console.error(err);
@@ -77,10 +137,45 @@ export default function FleetPage() {
     <main className="pt-24 min-h-screen max-w-7xl mx-auto px-6 lg:px-12 flex flex-col md:flex-row gap-12">
       {/* Sidebar Filter */}
       <aside className="w-full md:w-64 flex-shrink-0">
-        <div className="sticky top-28 space-y-10">
+        <div className="sticky top-28 space-y-8 max-h-[80vh] overflow-y-auto pr-2 pb-8 custom-scrollbar">
+          
+          {/* Price Range */}
           <section>
-            <h3 className="font-headline text-on-surface font-extrabold text-sm uppercase tracking-widest mb-6">Categorias</h3>
-            <div className="space-y-4">
+            <h3 className="font-headline text-on-surface font-extrabold text-sm uppercase tracking-widest mb-4 border-b border-outline-variant/30 pb-2">Valor da Diária</h3>
+            <div className="flex gap-2 items-center">
+              <div className="relative flex-1">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant font-medium text-sm">R$</span>
+                <input
+                  type="number"
+                  placeholder="Mín"
+                  value={minPrice}
+                  onChange={(e) => {
+                    setMinPrice(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="w-full pl-8 pr-2 py-2 bg-surface-container-highest border border-outline-variant/50 rounded-lg text-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                />
+              </div>
+              <span className="text-on-surface-variant font-medium text-sm">até</span>
+              <div className="relative flex-1">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant font-medium text-sm">R$</span>
+                <input
+                  type="number"
+                  placeholder="Máx"
+                  value={maxPrice}
+                  onChange={(e) => {
+                    setMaxPrice(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="w-full pl-8 pr-2 py-2 bg-surface-container-highest border border-outline-variant/50 rounded-lg text-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                />
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <h3 className="font-headline text-on-surface font-extrabold text-sm uppercase tracking-widest mb-4 border-b border-outline-variant/30 pb-2">Categorias</h3>
+            <div className="space-y-3">
               {categoriasLista.map(categoria => (
                 <label key={categoria.id} className="flex items-center group cursor-pointer">
                   <input
@@ -92,20 +187,71 @@ export default function FleetPage() {
                   <span className="w-5 h-5 border-2 border-outline-variant rounded-sm flex items-center justify-center peer-checked:bg-primary-container peer-checked:border-primary-container transition-all">
                     <span className="material-symbols-outlined text-[16px] text-on-primary font-bold peer-checked:block hidden">check</span>
                   </span>
-                  <span className="ml-4 font-body text-sm text-on-surface-variant group-hover:text-on-surface transition-colors">
+                  <span className="ml-3 font-body text-sm text-on-surface-variant group-hover:text-on-surface transition-colors">
                     {categoria.label}
                   </span>
                 </label>
               ))}
             </div>
           </section>
+
+          {availableCambios.length > 0 && (
+            <section>
+              <h3 className="font-headline text-on-surface font-extrabold text-sm uppercase tracking-widest mb-4 border-b border-outline-variant/30 pb-2">Câmbio</h3>
+              <div className="space-y-3">
+                {availableCambios.map(c => (
+                  <label key={c} className="flex items-center group cursor-pointer">
+                    <input type="checkbox" className="hidden peer" checked={selectedCambios.includes(c)} onChange={() => toggleCambio(c)} />
+                    <span className="w-5 h-5 border-2 border-outline-variant rounded-sm flex items-center justify-center peer-checked:bg-primary-container peer-checked:border-primary-container transition-all">
+                      <span className="material-symbols-outlined text-[16px] text-on-primary font-bold peer-checked:block hidden">check</span>
+                    </span>
+                    <span className="ml-3 font-body text-sm text-on-surface-variant group-hover:text-on-surface transition-colors">{c}</span>
+                  </label>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {availableCombustiveis.length > 0 && (
+            <section>
+              <h3 className="font-headline text-on-surface font-extrabold text-sm uppercase tracking-widest mb-4 border-b border-outline-variant/30 pb-2">Combustível</h3>
+              <div className="space-y-3">
+                {availableCombustiveis.map(c => (
+                  <label key={c} className="flex items-center group cursor-pointer">
+                    <input type="checkbox" className="hidden peer" checked={selectedCombustiveis.includes(c)} onChange={() => toggleCombustivel(c)} />
+                    <span className="w-5 h-5 border-2 border-outline-variant rounded-sm flex items-center justify-center peer-checked:bg-primary-container peer-checked:border-primary-container transition-all">
+                      <span className="material-symbols-outlined text-[16px] text-on-primary font-bold peer-checked:block hidden">check</span>
+                    </span>
+                    <span className="ml-3 font-body text-sm text-on-surface-variant group-hover:text-on-surface transition-colors">{c}</span>
+                  </label>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {availableLugares.length > 0 && (
+            <section>
+              <h3 className="font-headline text-on-surface font-extrabold text-sm uppercase tracking-widest mb-4 border-b border-outline-variant/30 pb-2">Lugares</h3>
+              <div className="space-y-3">
+                {availableLugares.map(l => (
+                  <label key={l} className="flex items-center group cursor-pointer">
+                    <input type="checkbox" className="hidden peer" checked={selectedLugares.includes(l)} onChange={() => toggleLugares(l)} />
+                    <span className="w-5 h-5 border-2 border-outline-variant rounded-sm flex items-center justify-center peer-checked:bg-primary-container peer-checked:border-primary-container transition-all">
+                      <span className="material-symbols-outlined text-[16px] text-on-primary font-bold peer-checked:block hidden">check</span>
+                    </span>
+                    <span className="ml-3 font-body text-sm text-on-surface-variant group-hover:text-on-surface transition-colors">{l} lugares</span>
+                  </label>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       </aside>
 
       {/* Main Grid Section */}
       <section className="flex-1 pb-20">
         <header className="mb-12">
-          <h1 className="font-headline text-5xl font-black text-on-surface tracking-tighter mb-4">Nossa Frota</h1>
+          <h1 className="font-headline text-5xl font-black text-on-surface tracking-tighter mb-4">Nossa Frota Disponível</h1>
           <p className="font-body text-on-surface-variant max-w-2xl text-lg leading-relaxed">
             Veículos modernos, manutenção rigorosa e prontos para qualquer desafio. Encontre a solução ideal para sua mobilidade corporativa ou pessoal.
           </p>
@@ -128,7 +274,7 @@ export default function FleetPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {filteredVeiculos.map(v => {
+            {paginatedVeiculos.map(v => {
               const fotoUrl = v['Foto de capa'] || v.foto || v.Foto || 'https://images.unsplash.com/photo-1590496739777-50a11270b200?w=800&q=80';
               const imgUrl = fotoUrl.startsWith('//') ? `https:${fotoUrl}` : fotoUrl;
               const displayName = v.nome || v.Modelo || 'Veículo';
@@ -219,6 +365,53 @@ export default function FleetPage() {
                 </Link>
               );
             })}
+          </div>
+        )}
+
+        {/* Pagination Controls */}
+        {!loading && !error && totalPages > 1 && (
+          <div className="mt-12 flex justify-center items-center gap-2">
+            <button
+              onClick={() => {
+                setCurrentPage(p => Math.max(1, p - 1));
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              disabled={currentPage === 1}
+              className="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface hover:bg-surface-variant disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              aria-label="Página anterior"
+            >
+              <span className="material-symbols-outlined">chevron_left</span>
+            </button>
+
+            <div className="flex gap-1 flex-wrap justify-center">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <button
+                  key={page}
+                  onClick={() => {
+                    setCurrentPage(page);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className={`w-10 h-10 flex items-center justify-center rounded-lg font-headline font-bold transition-all ${currentPage === page
+                      ? 'bg-primary-container text-on-primary border border-primary-container'
+                      : 'border border-outline-variant text-on-surface hover:bg-surface-variant'
+                    }`}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => {
+                setCurrentPage(p => Math.min(totalPages, p + 1));
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              disabled={currentPage === totalPages}
+              className="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface hover:bg-surface-variant disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              aria-label="Próxima página"
+            >
+              <span className="material-symbols-outlined">chevron_right</span>
+            </button>
           </div>
         )}
       </section>
